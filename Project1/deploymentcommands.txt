@@ -16,5 +16,34 @@ kubectl -n splunk get ingress
 
 kubectl apply -f clusterissuer-letsencrypt-staging.yaml
 
+kubectl apply -f splunk-ingress-tls.yaml
+
+Verify cert issuance
+
+kubectl -n splunk get ingress
+kubectl -n splunk describe ingress splunk-ingress
+kubectl -n splunk get certificate
+kubectl -n splunk describe certificate
+kubectl -n splunk get secret splunk-tls
+
+Also check cert-manager logs
+
+kubectl -n cert-manager get pods
+kubectl -n cert-manager logs deploy/cert-manager -f
+
+Switch from staging to production 
+Edit the ingress annotation:
+cert-manager.io/cluster-issuer: "letsencrypt-prod"
 
 
+Then apply:
+kubectl apply -f clusterissuer-letsencrypt-prod.yaml
+kubectl apply -f splunk-ingress-tls.yaml
+
+Common failure causes (quick checklist)
+DNS splunk.example.com not pointing to the NGINX Ingress external IP/LB
+NGINX Ingress class mismatch (nginx vs nginx-internal)
+cert-manager not installed or not running
+HTTP-01 challenge blocked by firewall/security group
+
+Using Let’s Encrypt prod too early → rate limits (use staging first)
