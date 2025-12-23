@@ -1,1 +1,44 @@
+Kubernetes Debug Test (EKS + GKE)
+A) kubectl can’t talk to the cluster (connectivity/auth/context)
+1a — Commands to debug
+1b — Most likely symptom / root cause
+1c — EXAMPLE OUTPUT
 
+B) Pods stuck in Pending (scheduling)
+1a — Commands to debug
+1b — Most likely symptom / root cause
+1c — EXAMPLE OUTPUT
+
+C) ImagePullBackOff / ErrImagePull (image retrieval)
+1a — Commands to debug
+1b — Most likely symptom / root cause
+1c — EXAMPLE OUTPUT
+
+D) CrashLoopBackOff (container starts then dies)
+1a — Commands to debug (in this order)
+1b — Most likely symptom / root cause
+1c — EXAMPLE OUTPUT
+
+E) PVC Pending / storage not binding
+1a — Commands to debug
+1b — Most likely symptom / root cause
+1c — EXAMPLE OUTPUT
+
+F) Service exists but has no endpoints (traffic fails inside cluster)
+1a — Commands to debug
+1b — Most likely symptom / root cause
+1c — EXAMPLE OUTPUT
+
+G) Ingress 404 / 502 / 504 (routing layer)
+1a — Commands to debug
+1b — Most likely symptom / root cause
+1c — EXAMPLE OUTPUT
+
+H) TLS / cert-manager certificate not issuing
+1a — Commands to debug
+1b — Most likely symptom / root cause
+1c — EXAMPLE OUTPUT
+
+
+1b — Most likely symptom / root cause
+1c — EXAMPLE OUTPUT
