@@ -7,4 +7,14 @@ kubectl get pvc
 kubectl get svc
 
 
-  
+kubectl apply -f splunk-statefulset.yaml
+kubectl -n splunk get pods,svc,pvc,ingress
+
+kubectl -n splunk describe pod splunk-0
+kubectl -n splunk get pvc
+kubectl -n splunk get ingress
+
+kubectl apply -f clusterissuer-letsencrypt-staging.yaml
+
+
+
