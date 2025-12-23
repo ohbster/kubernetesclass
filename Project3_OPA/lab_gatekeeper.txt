@@ -18,5 +18,15 @@ kubectl apply -f 00-namespaces.yaml
 kubectl get ns --show-labels | grep splunk
 
 
+kubectl apply -f 10-template-argo-app-env-namespace.yaml
+kubectl apply -f 11-constraint-argo-app-env-namespace.yaml
+
+kubectl get constrainttemplates | grep k8sargoappenvironment
+kubectl get constraints | grep argo-app-env-namespace-lock
+
+kubectl apply -f 20-template-splunk-service-port-by-env.yaml
+kubectl apply -f 21-constraint-splunk-service-port-by-env.yaml
 
 
+kubectl get constrainttemplates | grep k8sserviceportbyenv
+kubectl get constraints | grep splunk-service-port-lock
