@@ -1,0 +1,62 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sserviceportbyenv
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sServicePortByEnv
+      validation:
+        openAPIV3Schema:
+          properties:
+            namespaceLabelKey:
+              type: string
+            allowedPortByEnv:
+              type: object
+              additionalProperties:
+                type: integer
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sserviceportbyenv
+
+        is_service {
+          input.review.kind.kind == "Service"
+          input.review.kind.group == ""
+        }
+
+        violation[{"msg": msg}] {
+          is_service
+
+          # Only enforce for Services named "splunk" (tight scope for class)
+          input.review.object.metadata.name == "splunk"
+
+          ns := input.review.object.metadata.namespace
+          env_key := input.parameters.namespaceLabelKey
+
+          # Gatekeeper doesn't automatically know namespace labels.
+          # Best practice: enforce by namespace NAME or require env label on the Service too.
+          # We'll use namespace NAME here for simplicity:
+          env := env_from_namespace(ns)
+          allowed := input.parameters.allowedPortByEnv[env]
+
+          some i
+          port := input.review.object.spec.ports[i].port
+          port != allowed
+
+          msg := sprintf("Service splunk in %v must expose port %v (got %v)", [ns, allowed, port])
+        }
+
+        env_from_namespace(ns) = env {
+          ns == "splunk-prod"
+          env := "prod"
+        }
+        env_from_namespace(ns) = env {
+          ns == "splunk-dev"
+          env := "dev"
+        }
+        env_from_namespace(ns) = env {
+          ns == "splunk-test"
+          env := "test"
+        }
