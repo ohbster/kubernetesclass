@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: splunk
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: splunk-secret
+  namespace: splunk
+type: Opaque
+stringData:
+  # TEACHING NOTE: Use a strong password; rotate it; don't hardcode in YAML in real life.
+  SPLUNK_PASSWORD: "ChangeMe123!"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: splunk-config
+  namespace: splunk
+data:
+  # Example: Splunk container images often support start args + accept license.
+  SPLUNK_START_ARGS: "--accept-license"
+  # If your image expects different env vars, adjust here.
+  # You can also store non-sensitive config files in ConfigMaps.
+---
+# Headless Service: required for stable network identity in StatefulSets
+apiVersion: v1
+kind: Service
+metadata:
+  name: splunk-headless
+  namespace: splunk
+spec:
+  clusterIP: None
+  selector:
+    app: splunk
+  ports:
+    - name: http
+      port: 8091
+      targetPort: 8091
+---
+# ClusterIP Service: stable service name for Ingress to target
+apiVersion: v1
+kind: Service
+metadata:
+  name: splunk
+  namespace: splunk
+spec:
+  type: ClusterIP
+  selector:
+    app: splunk
+  ports:
+    - name: http
+      port: 8091
+      targetPort: 8091
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: splunk
+  namespace: splunk
+spec:
+  serviceName: splunk-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: splunk
+  template:
+    metadata:
+      labels:
+        app: splunk
+    spec:
+      containers:
+        - name: splunk
+          image: <your-registry>/splunk:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8091
+          env:
+            - name: SPLUNK_START_ARGS
+              valueFrom:
+                configMapKeyRef:
+                  name: splunk-config
+                  key: SPLUNK_START_ARGS
+            - name: SPLUNK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: splunk-secret
+                  key: SPLUNK_PASSWORD
+          volumeMounts:
+            - name: splunk-storage
+              mountPath: /opt/splunk
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              cpu: "1"
+              memory: "4Gi"
+          # Highly recommended for stateful apps:
+          terminationMessagePolicy: FallbackToLogsOnError
+  volumeClaimTemplates:
+    - metadata:
+        name: splunk-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 50Gi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: splunk-ingress
+  namespace: splunk
+  annotations:
+    # Requires NGINX Ingress Controller installed in cluster
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  rules:
+    - host: splunk.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: splunk
+                port:
+                  number: 8091
