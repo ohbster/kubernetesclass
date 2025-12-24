@@ -1,1 +1,12 @@
 
+
+# In your GitHub repo, add:
+
+# clusters/dev/splunk/namespace.yaml
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: splunk-dev
+  labels:
+    env: dev
