@@ -56,5 +56,15 @@ Option B: YAML-only install + GitRepository/Kustomization (no bootstrap)
 
 kubectl apply -f https://github.com/fluxcd/flux2/releases/latest/download/install.yaml
 
+kubectl -n flux-system get pods
+
+
+Apply 
+kubectl apply -f myrepo.yaml
+
+Then
+kubectl apply -f kustomization.yaml
+
+
 
 
