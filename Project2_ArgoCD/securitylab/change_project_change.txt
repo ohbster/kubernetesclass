@@ -1,0 +1,25 @@
+spec:
+  project: splunk-prod
+  destination:
+    namespace: splunk-prod
+
+
+
+spec:
+  project: splunk-dev
+  destination:
+    namespace: splunk-dev
+
+
+
+spec:
+  project: splunk-test
+  destination:
+    namespace: splunk-test
+
+
+Then Apply
+
+kubectl apply -f 30-app-splunk-prod.yaml
+kubectl apply -f 31-app-splunk-dev.yaml
+kubectl apply -f 32-app-splunk-test.yaml
