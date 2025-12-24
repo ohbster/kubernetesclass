@@ -23,3 +23,20 @@ Part 2 — Connect Flux to your public GitHub repo
 
 Apply
 kubectl apply -f 01-gitrepository.yaml
+
+Verify source:
+flux get sources git -A
+kubectl -n flux-system describe gitrepository github-platform
+
+Part 3 — Tell Flux what folder to apply (Splunk folder)
+02-kustomization-splunk-dev.yaml
+
+Apply:
+kubectl apply -f 02-kustomization-splunk-dev.yaml
+
+Check:
+flux get kustomizations -A
+kubectl -n flux-system describe kustomization splunk-dev
+
+Error Message: If the folder doesn’t exist yet, Flux will report an error — that’s normal until you push the repo structure.
+
