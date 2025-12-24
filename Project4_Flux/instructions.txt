@@ -87,6 +87,16 @@ git push
 Flux reconcile (optional “make it happen now” command):
 flux reconcile kustomization splunk-dev -n flux-system --with-source
 
+If you use Github, Bitbucket, or ADO
+kubectl apply -f splunk_kustomization.yaml
+
+Verify
+
+flux get sources git -A
+flux get kustomizations -A
+kubectl -n splunk-dev get pods,svc,pvc
+
+
 Verify in cluster:
 kubectl -n splunk get pods,svc,pvc
 
