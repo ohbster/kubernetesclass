@@ -14,19 +14,39 @@ spec:
       labels:
         app: splunk
     spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
       containers:
         - name: splunk
-          image: <your-registry>/splunk:latest
+          image: splunk/splunk:9.2.2
           ports:
-            - containerPort: 8091
+            - containerPort: 8000
           env:
+            - name: SPLUNK_BUILD_TYPE
+              value: "splunk"
+            - name: splunk_build_type
+              value: "splunk"
             - name: SPLUNK_START_ARGS
               value: "--accept-license"
+            - name: SPLUNK_GENERAL_TERMS
+              value: "--accept-sgt-current-at-splunk-com"
             - name: SPLUNK_PASSWORD
-              value: "ChangeMe123!"   # TEACH: move to Secret later
+              valueFrom:
+                secretKeyRef:
+                  name: splunk-secrets
+                  key: splunk-password
+              #  "ChangeMe123!"   # TEACH: move to Secret later
+          # volumeMounts:
+          #   - name: splunk-storage
+          #     mountPath: /opt/splunk
           volumeMounts:
+            # Persist ONLY etc + var (don’t mount over /opt/splunk)
             - name: splunk-storage
-              mountPath: /opt/splunk
+              mountPath: /opt/splunk/etc
+              subPath: etc
+            - name: splunk-storage
+              mountPath: /opt/splunk/var
+              subPath: var
           resources:
             requests:
               cpu: "500m"

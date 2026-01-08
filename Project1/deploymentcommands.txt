@@ -1,12 +1,13 @@
 kubectl apply -f splunk-pvc.yaml
 kubectl apply -f splunk-deployment.yaml
 kubectl apply -f splunk-service.yaml
+kubectl apply -f splunk-secrets.yaml        # Added
 
 kubectl get pods
 kubectl get pvc
 kubectl get svc
 
-
+kubectl create namespace splunk         # Added
 kubectl apply -f splunk-statefulset.yaml
 kubectl -n splunk get pods,svc,pvc,ingress
 
@@ -14,6 +15,7 @@ kubectl -n splunk describe pod splunk-0
 kubectl -n splunk get pvc
 kubectl -n splunk get ingress
 
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.2/cert-manager.yaml   # Added
 kubectl apply -f clusterissuer-letsencrypt-staging.yaml
 
 kubectl apply -f splunk-ingress-tls.yaml

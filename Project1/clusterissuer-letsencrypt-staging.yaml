@@ -5,7 +5,7 @@ metadata:
 spec:
   acme:
     # Change this email
-    email: you@example.com
+    email: ohbster@protonmail.com       # Modified
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: letsencrypt-staging-account-key

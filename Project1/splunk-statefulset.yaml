@@ -1,7 +1,7 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: splunk
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: splunk
 ---
 apiVersion: v1
 kind: Secret
@@ -72,12 +72,20 @@ spec:
     spec:
       containers:
         - name: splunk
-          image: <your-registry>/splunk:latest
+          image: splunk/splunk:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8091
           env:
+            - name: SPLUNK_BUILD_TYPE
+              value: "splunk"
+            - name: splunk_build_type     # added
+              value: "splunk"
+            - name: SPLUNK_START_ARGS
+              value: "--accept-license"
+            - name: SPLUNK_GENERAL_TERMS
+              value: '--accept-sgt-current-at-splunk-com'
             - name: SPLUNK_START_ARGS
               valueFrom:
                 configMapKeyRef:
@@ -89,8 +97,14 @@ spec:
                   name: splunk-secret
                   key: SPLUNK_PASSWORD
           volumeMounts:
+          #   - name: splunk-storage
+          #     mountPath: /opt/splunk
+            - name: splunk-storage          # added below
+              mountPath: /opt/splunk/etc
+              subPath: etc
             - name: splunk-storage
-              mountPath: /opt/splunk
+              mountPath: /opt/splunk/var
+              subPath: var
           resources:
             requests:
               cpu: "500m"
@@ -104,6 +118,7 @@ spec:
     - metadata:
         name: splunk-storage
       spec:
+        storageClassName: pd-balanced-csi
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
